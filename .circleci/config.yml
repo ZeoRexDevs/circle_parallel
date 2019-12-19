@@ -3,27 +3,48 @@ defaults: &defaults
   steps:
     - checkout
     - run:
-        name: Install & Update the Bundles
+        name: Install the Bundle Dependencies
         command: |
           gem install bundler
-          bundle update --all --jobs 12
           bundle install --no-cache --jobs 8 --retry 3 --path vendor/bundle
-    - run:
-        name: git diff
-        command: |
-          [ ! -d "/tmp" ] && mkdir -p /tmp
-          git diff Gem* > /tmp/diff.txt
-          cat /tmp/diff.txt
-        no_output_timeout: 1m
     - run:
         name: Rake Test
         command: |
           bundle exec rake db:create db:schema:load
-          bundle exec rake --trace || echo "Rake test failed for some reason"
+          bundle exec rake --trace
 
-version: 2.0
+version: 2
 
 jobs:
+
+  master-ruby26:
+    docker:
+      - image: circleci/ruby:2.6-node
+      - image: circleci/postgres:9.5-alpine
+    working_directory: ~/circleci-demo-workflows
+    steps:
+      - checkout
+      - run:
+          name: Install the Bundle Dependencies
+          command: |
+            gem install bundler
+            bundle update --all --jobs 12
+            bundle install --no-cache --jobs 8 --retry 3 --path vendor/bundle
+      - run:
+          name: Rake Test
+          command: |
+            bundle exec rake db:create db:schema:load
+            bundle exec rake --trace
+      - run:
+          name: Check & Commit any Lockfile Updates
+          command: |
+            if [ -n "$(git status --porcelain | grep Gemfile)" ]; then
+              git add Gemfile Gemfile.lock
+              git commit --author "dependabot-bot <dependabot[bot]@users.noreply.github.com>"  -m "Force Cron Update"
+              git push -f origin master
+            fi
+            echo "Updated the master branch"
+
   ruby23:
     docker:
       - image: circleci/ruby:2.3-node
@@ -50,9 +71,30 @@ jobs:
 
 workflows:
   version: 2
-  build:
+  check_master_update:
+    triggers:
+       - schedule:
+           cron: "0 0 * * *"
+           filters:
+             branches:
+               only: master
     jobs:
-      - "ruby23"
-      - "ruby24"
-      - "ruby25"
-      - "ruby26"
+      - master-ruby26
+  build_dependabot_update:
+    jobs:
+      - ruby23:
+          filters:
+            branches:
+              only: /dependabot.*/
+      - ruby24:
+          filters:
+            branches:
+              only: /dependabot.*/
+      - ruby25:
+          filters:
+            branches:
+              only: /dependabot.*/
+      - ruby26:
+          filters:
+            branches:
+              only: /dependabot.*/

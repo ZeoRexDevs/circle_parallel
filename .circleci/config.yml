@@ -45,12 +45,6 @@ jobs:
             fi
             echo "Updated the master branch"
 
-  ruby23:
-    docker:
-      - image: circleci/ruby:2.3-node
-      - image: circleci/postgres:9.4-alpine
-    <<: *defaults
-
   ruby24:
     docker:
       - image: circleci/ruby:2.4-node
@@ -82,10 +76,6 @@ workflows:
       - master-ruby26
   build_dependabot_update:
     jobs:
-      - ruby23:
-          filters:
-            branches:
-              only: /dependabot.*/
       - ruby24:
           filters:
             branches:

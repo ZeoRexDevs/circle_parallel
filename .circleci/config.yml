@@ -2,9 +2,6 @@ version: 2.0
 
 jobs:
   "ruby-2.2":
-    branches:
-      only:
-        - master
     docker:
       - image: circleci/ruby:2.2-node
       - image: circleci/postgres:9.4.12-alpine
@@ -21,9 +18,6 @@ jobs:
           command: rake
 
   "ruby-2.3":
-    branches:
-      only:
-        - master
     docker:
       - image: circleci/ruby:2.3-node
       - image: circleci/postgres:9.4.12-alpine
@@ -40,9 +34,6 @@ jobs:
           command: rake
 
   "ruby-2.4":
-    branches:
-      only:
-        - master
     docker:
       - image: circleci/ruby:2.4-node
       - image: circleci/postgres:9.4.12-alpine

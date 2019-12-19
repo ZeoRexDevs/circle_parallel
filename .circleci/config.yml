@@ -3,14 +3,18 @@ defaults: &defaults
   steps:
     - checkout
     - run:
-        name: Install Bundles
-        command: bundle install --jobs 16 --retry 3 --path vendor/bundle
-    - run:
-        name: Update the Bundles and Re-Install
+        name: Install & Update the Bundles
         command: |
-          bundle update
-          bundle install --jobs 16 --retry 3 --path vendor/bundle
-    - run: git diff Gemfile*
+          gem install bundler
+          bundle update || bundle install --jobs 16 --retry 3 --path vendor/bundle
+          bundle update && bundle install --jobs 12 --retry 3 --path vendor/bundle
+    - run:
+        name: git diff
+        command: |
+          [ ! -d "/tmp" ] && mkdir -p /tmp
+          git diff Gem* >> /tmp/diff.txt
+          cat /tmp/diff.txt || echo "diff not found"
+        no_output_timeout: 2m
     - run:
         name: Rake Test
         command: |

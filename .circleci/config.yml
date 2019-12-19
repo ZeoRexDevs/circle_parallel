@@ -11,7 +11,7 @@ defaults: &defaults
     - run:
         name: git diff
         command: |
-          [ ! -d "/tmp"] && mkdir -p /tmp
+          [ ! -d "/tmp" ] && mkdir -p /tmp
           git diff Gem* > /tmp/diff.txt
           cat /tmp/diff.txt
         no_output_timeout: 1m

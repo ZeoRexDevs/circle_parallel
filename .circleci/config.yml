@@ -40,10 +40,12 @@ jobs:
           command: |
             if [ -n "$(git status --porcelain | grep Gemfile)" ]; then
               git add Gemfile Gemfile.lock
-              git commit --author "dependabot-bot <dependabot[bot]@users.noreply.github.com>"  -m "Force Cron Update"
+              git commit --author "dependabot-bot <dependabot[bot]@users.noreply.github.com>" -m "Force Cron Update"
               git push -f origin master
+              echo "Updated the master branch"
+            else
+              echo "Already Up2date with the upstream master"
             fi
-            echo "Updated the master branch"
 
   ruby24:
     docker:

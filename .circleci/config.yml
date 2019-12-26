@@ -40,18 +40,14 @@ jobs:
           command: |
             if [ -n "$(git status --porcelain | grep Gemfile)" ]; then
               git add Gemfile Gemfile.lock
-              git commit --author "dependabot-bot <dependabot[bot]@users.noreply.github.com>" -m "Force Cron Update"
+              git config --local user.email "support@dependabot.com"
+              git config --local user.name "dependabot[bot]"
+              git commit -m "Force Cron Update"
               git push -f origin master
               echo "Updated the master branch"
             else
               echo "Already Up2date with the upstream master"
             fi
-
-  ruby24:
-    docker:
-      - image: circleci/ruby:2.4-node
-      - image: circleci/postgres:9.4-alpine
-    <<: *defaults
 
   ruby25:
     docker:
@@ -78,10 +74,6 @@ workflows:
       - master-ruby26
   build_dependabot_update:
     jobs:
-      - ruby24:
-          filters:
-            branches:
-              only: /dependabot.*/
       - ruby25:
           filters:
             branches:

@@ -14,7 +14,9 @@ defaults: &defaults
         name: Install the Bundle Dependencies
         command: |
           gem install bundler
-          bundle install --no-cache --jobs 8 --retry 3 --path vendor/bundle
+          bundle config set no-cache 'true'
+          bundle config set path 'vendor/bundle'
+          bundle install --jobs 8 --retry 3
     - run:
         <<: *test
 
@@ -32,8 +34,10 @@ jobs:
           command: |
             gem install bundler
             bundle update --bundler --jobs 12
+            bundle config set no-cache 'true'
+            bundle config set path 'vendor/bundle'
+            bundle install --jobs 8 --retry 3
             bundle update --all --jobs 12
-            bundle install --no-cache --jobs 8 --retry 3 --path vendor/bundle
       - run:
           <<: *test
       - run:
